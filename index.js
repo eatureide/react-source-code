@@ -7,13 +7,14 @@ const ele = (
   </div>
 )
 
-ReactDOM.render(ele, document.querySelector('#root'))
+function Home() {
+  return (
+    <div className="active" title="123">
+      hello,<span>react</span>
+    </div>
+  )
+}
 
-// createElement(tag,attr,child1,child2....)
+// console.log(<Test />)
 
-// const ele = React.createElement("div", {
-//   className: "active",
-//   title: "123"
-// }, "hello,", React.createElement("span", null, "react"));
-
-// console.log(ele) 
+ReactDOM.render(<Home />, document.querySelector('#root'))
