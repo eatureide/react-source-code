@@ -19,7 +19,7 @@ function createComponent(comp, props) {
     inst = new Component(props)
     inst.constructor = comp
     // 定义render函数
-    inst.render = function () {
+    inst.render = function() {
       return this.constructor(props)
     }
   }
@@ -27,18 +27,36 @@ function createComponent(comp, props) {
   return inst
 }
 
-function renderComponent(comp) {
-  let base = null
-  const renderer = comp.render() // jsx对象
-  base = _render(renderer) // js节点对象
-  comp.base = base
-}
-
 function setComponentProps(comp, props) {
+  if (!comp.base) {
+    if (comp.componentWillMount) comp.componentWillMount()
+  } else if (comp.componentWillReceiveProps) {
+    comp.componentWillReceiveProps()
+  }
   // 设置组件属性
   comp.props = props
   // 渲染组件
   renderComponent(comp)
+}
+
+
+export function renderComponent(comp) {
+  let base = null
+  const renderer = comp.render() // jsx对象
+  base = _render(renderer) // js节点对象
+  if (comp.base && comp.componentWillUpdate) {
+    comp.componentWillUpdate()
+  }
+  if (comp.base) {
+    if (comp.componentDidUpdate) comp.componentDidUpdate()
+  } else if (comp.componentDidMount) {
+    comp.componentDidMount()
+  }
+  if (comp.base && comp.base.parentNode) {
+    comp.base.parentNode.replaceChild(base, comp.base)
+  }
+  comp.base = base
+
 }
 
 /**
@@ -48,10 +66,15 @@ function setComponentProps(comp, props) {
  */
 function _render(vnode, container) {
 
-  // 如果vnode是undefine、null、bolean类型，则把它置为空
+  // 如果vnode是undefine、null、boolean类型，则把它置为空
   if (vnode === undefined || vnode === null || typeof vnode === 'boolean') {
     vnode = ''
   }
+
+  if (typeof vnode === 'number') {
+    vnode = String(vnode)
+  }
+
 
   // 如果传入的vnode是一个字符串的话，则创建text节点并插入到指定的节点后返回即可
   if (typeof vnode === 'string') {
@@ -68,7 +91,7 @@ function _render(vnode, container) {
     return comp.base
   }
 
-  // 如果vode是对象的话，则先获取tag和attrs属性
+  // 如果vnode是对象的话，则先获取tag和attrs属性
   const {
     tag,
     attrs
@@ -85,16 +108,16 @@ function _render(vnode, container) {
   }
 
   // 遍历子节点，逐步递归到vnode为空为止
-  vnode.childrens.forEach((child) => {
-    render(child, dom)
-  })
+  if (vnode.childrens) {
+    vnode.childrens.forEach((child) => {
+      render(child, dom)
+    })
+
+  }
 
 
   return dom
 }
-
-
-
 
 /** 
  * 函数setAttribute接受三个参数
@@ -118,6 +141,7 @@ function setAttribute(dom, key, value) {
 
   //  如果是style
   else if (key === 'style') {
+
     // style可能会是对象，或者是字符串，如果是字符串的话直接设置csstext
     if (!value || typeof value === 'string') {
       dom.style.cssText = value || '';
