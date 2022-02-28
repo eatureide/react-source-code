@@ -1,20 +1,54 @@
-import React from "./react";
-import ReactDOM from "./react-dom";
+import React from "./react"
+import ReactDOM from './react-dom'
 
 const ele = (
-  <div className="active" title="123">
-    hello,<span>react</span>
-  </div>
+  <h1
+    title="react"
+    className="title"
+    style={ { color: 'blue', fontSize: 80 } }
+    onClick={ () => alert(123) }>hi</h1>
 )
 
-function Home() {
+const Home = (props) => {
   return (
-    <div className="active" title="123">
-      hello,<span>react</span>
-    </div>
+    <h1
+      { ...props }
+      title="react"
+      className="title"
+      style={ { color: 'blue', fontSize: 80 } }
+      onClick={ () => alert(123) }>hi</h1>
   )
 }
 
-// console.log(<Test />)
+class A extends React.Component {
 
-ReactDOM.render(<Home />, document.querySelector('#root'))
+  constructor (props) {
+    super(props)
+    this.state = {
+      num: 0
+    }
+  }
+
+  handleClick() {
+    this.setState({ num: this.state.num + 1 })
+  }
+
+  render() {
+    return (
+      <h1
+        title="react"
+        className="title"
+        style={ { color: 'blue', fontSize: 80 } }
+        onClick={ () => {
+          this.handleClick()
+        } }>
+        { this.state.num }
+        <span>hi</span>
+      </h1>
+    )
+  }
+}
+
+// console.log(<A />, '当前传参的组件')
+
+ReactDOM.render(<A />, document.querySelector('#root'))
