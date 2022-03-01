@@ -5,7 +5,8 @@ import diff from './diff'
 
 function render(vnode, container, dom) {
   const res = diff(dom, vnode, container)
-  return container.appendChild(renderVnode(vnode))
+  return res
+  // return container.appendChild(renderVnode(vnode))
 }
 
 // 根据vnode返回真实dom

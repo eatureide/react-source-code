@@ -68,4 +68,4 @@ class A extends React.Component {
 
 // console.log(ele, '当前传参的组件')
 
-ReactDOM.render(<A babel="op" />, document.querySelector('#root'))
+ReactDOM.render(ele, document.querySelector('#root'))
