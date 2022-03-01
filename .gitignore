@@ -9,7 +9,7 @@
 # production
 /build
 
-/cache
+/.cache
 /.vscode
 /dist
 
