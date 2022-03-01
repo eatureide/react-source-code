@@ -39,6 +39,7 @@ class A extends React.Component {
         title="react"
         className="title"
         style={ { color: 'blue', fontSize: 80 } }
+        { ...this.props }
         onClick={ () => {
           this.handleClick()
         } }>
@@ -51,4 +52,4 @@ class A extends React.Component {
 
 // console.log(<A />, '当前传参的组件')
 
-ReactDOM.render(<A />, document.querySelector('#root'))
+ReactDOM.render(<Home babel="op" />, document.querySelector('#root'))
