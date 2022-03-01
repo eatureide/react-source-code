@@ -29,6 +29,22 @@ class A extends React.Component {
     }
   }
 
+  componentWillMount() {
+    console.log('组件将要加载')
+  }
+
+  componentWillReceiveProps() {
+    console.log(this.props, '接收新props')
+  }
+
+  componentWillUpdate() {
+    console.log('组件将要更新')
+  }
+
+  componentDidMount() {
+    console.log('组件加载完成')
+  }
+
   handleClick() {
     this.setState({ num: this.state.num + 1 })
   }
@@ -50,6 +66,6 @@ class A extends React.Component {
   }
 }
 
-// console.log(<A />, '当前传参的组件')
+// console.log(ele, '当前传参的组件')
 
-ReactDOM.render(<Home babel="op" />, document.querySelector('#root'))
+ReactDOM.render(<A babel="op" />, document.querySelector('#root'))
