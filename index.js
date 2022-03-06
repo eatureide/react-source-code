@@ -1,71 +1,31 @@
-import React from "./react"
+import React from './react'
 import ReactDOM from './react-dom'
 
 const ele = (
-  <h1
-    title="react"
-    className="title"
-    style={ { color: 'blue', fontSize: 80 } }
-    onClick={ () => alert(123) }>hi</h1>
+  <div onClick={ () => alert('122') } className={ 'hello' } title="react" style="color:red;font-size:32px">
+    <span>123</span>ele1
+  </div>
 )
 
-const Home = (props) => {
-  return (
-    <h1
-      { ...props }
-      title="react"
-      className="title"
-      style={ { color: 'blue', fontSize: 80 } }
-      onClick={ () => alert(123) }>hi</h1>
-  )
-}
 
-class A extends React.Component {
 
-  constructor (props) {
-    super(props)
-    this.state = {
-      num: 0
-    }
-  }
+// function Home() {
+//   return (
+//     <div onClick={ () => alert('122') } className={ 'hello' } title="react" style="color:red;font-size:32px">
+//       <span>123</span>ele1
+//     </div>
+//   )
+// }
 
-  componentWillMount() {
-    console.log('组件将要加载')
-  }
-
-  componentWillReceiveProps() {
-    console.log(this.props, '接收新props')
-  }
-
-  componentWillUpdate() {
-    console.log('组件将要更新')
-  }
-
-  componentDidMount() {
-    console.log('组件加载完成')
-  }
-
-  handleClick() {
-    this.setState({ num: this.state.num + 1 })
-  }
-
+class Home extends React.Component {
   render() {
     return (
-      <h1
-        title="react"
-        className="title"
-        style={ { color: 'blue', fontSize: 80 } }
-        { ...this.props }
-        onClick={ () => {
-          this.handleClick()
-        } }>
-        { this.state.num }
-        <span>hi</span>
-      </h1>
+      <div onClick={ () => alert('122') } className={ 'hello' } title="react" style="color:red;font-size:32px">
+        <span>123</span>ele1
+      </div>
     )
   }
 }
 
-// console.log(ele, '当前传参的组件')
 
-ReactDOM.render(ele, document.querySelector('#root'))
+ReactDOM.render(<Home name="title" />, document.querySelector('#root'))

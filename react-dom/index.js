@@ -1,50 +1,68 @@
+import Component from '../react/component'
 
-import setAttribute from './setAttribute'
-import createComponent from './createComponent'
-import diff from './diff'
-
-function render(vnode, container, dom) {
-  const res = diff(dom, vnode, container)
-  return res
-  // return container.appendChild(renderVnode(vnode))
+const ReactDOM = {
+  render
 }
 
-// 根据vnode返回真实dom
-function renderVnode(vnode) {
+function render(vnode, container) {
+  return container.appendChild(_render(vnode))
+}
 
-  // 如果什么都没有
-  const vnodeIsNothing = vnode === undefined || vnode === null || vnode === ''
-  // 如果是数字类型
-  const vnodeIsNumber = typeof vnode === 'number'
-  // 如果是字符串类型
-  const vnodeIsString = typeof vnode === 'string'
-  // 如果是函数组件
-  const vnodeIsFunction = typeof vnode.tag === 'function'
-
-  const { tag, attrs, childrens } = vnode
-  const childrensIsArray = Array.isArray(childrens)
-
-  // 检查vnode的值，如果是空则什么都不做
-  if (vnodeIsNothing) vnode = ''
-  // 如果是数字则转为字符串
-  if (vnodeIsNumber) vnode = String(vnode)
-  // 如果vnode类型是string，则直接返回文本节点
-  if (vnodeIsString || vnodeIsNumber) return document.createTextNode(vnode)
-
-  // 如果vnode是函数，则创建它
-  if (vnodeIsFunction) {
-    const { tag, attrs } = vnode
-    const comp = createComponent(tag, attrs)
-    // 组件加载完成
-    if (comp.base && comp.componentDidMount) {
-      comp.componentDidMount()
+function createComponent(comp, props) {
+  let inst = null
+  // 如果是类定义的组件，则创建实例返回
+  if (comp.prototype && comp.prototype.render) {
+    inst = new comp(props)
+  } else {
+    // 如果是函数组件，则转换为类组件。方面统一管理
+    inst = new Component(props)
+    inst.constructor = comp
+    inst.render = function () {
+      return inst.constructor(props)
     }
+  }
+  return inst
+}
+
+function renderComponent(comp) {
+  let base = null
+  const renderer = comp.render()
+  base = _render(renderer)
+  comp.base = base
+}
+
+function setComponentProps(comp, props) {
+  comp.props = props
+  renderComponent(comp)
+}
+
+function _render(vnode) {
+
+  if (vnode === undefined || vnode === null || typeof vnode === 'boolean') {
+    vnode = ''
+  }
+
+  // 如果只是字符串
+  if (typeof vnode === 'string') {
+    // 创建文本节点
+    const textNode = document.createTextNode(vnode)
+    return textNode
+  }
+
+  if (typeof vnode.tag === 'function') {
+    // 创建组件
+    const comp = createComponent(vnode.tag, vnode.attrs)
+    // 设置组件属性
+    setComponentProps(comp, vnode.attrs)
+    // 渲染节点并返回
     return comp.base
   }
 
+  // 否则就是虚拟dom对象
+  const { tag, attrs } = vnode
+  // 创建节点对象
   const dom = document.createElement(tag)
 
-  // 检查attrs，遍历该对象，并使用setAttribute方法设置dom属性
   if (attrs) {
     Object.keys(attrs).forEach((key) => {
       const value = attrs[key]
@@ -52,15 +70,49 @@ function renderVnode(vnode) {
     })
   }
 
-  // 如果该对象还有子元素，则递归调用生成
-  if (childrensIsArray && childrens.length) {
-    childrens.forEach((item) => { dom.appendChild(renderVnode(item)) })
+  if (vnode.childrens) {
+    vnode.childrens.forEach((child) => {
+      render(child, dom)
+    })
   }
 
   return dom
 }
 
-export default {
-  render,
-  renderVnode
+function setAttribute(dom, key, value) {
+  // 属性名className转换为class
+  if (key === 'className') {
+    key = 'class'
+  }
+  // 如果是事件
+  if (/on\w/.test(key)) {
+    key = key.toLowerCase()
+    dom[key] = value || ''
+  } else if (key === 'style') {
+    if (!value || typeof value === 'string') {
+      dom.style.cssText = value || ''
+    } else if (value && typeof value === 'object') {
+      for (let k in value) {
+
+        if (typeof value[k] === 'number') {
+          dom.style[k] = value[k] + 'px'
+        } else {
+          dom.style[k] = value
+        }
+      }
+    }
+  } else {
+    // 其他属性
+    if (key in dom) {
+      dom[key] = value || ''
+    }
+    // 如果有值
+    if (value) {
+      dom.setAttribute(key, value)
+    } else {
+      dom.setAttribute(key, '')
+    }
+  }
 }
+
+export default ReactDOM
