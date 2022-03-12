@@ -24,15 +24,43 @@ function createComponent(comp, props) {
   return inst
 }
 
-function renderComponent(comp) {
+export function renderComponent(comp) {
   let base = null
   const renderer = comp.render()
   base = _render(renderer)
+  if (comp.base && comp.componentWillUpdate) {
+    comp.componentWillUpdate()
+  }
+
+  if (comp.base) {
+    // 如果已经有组件，则调用update
+    if (comp.componentDidUpdate) {
+      comp.componentDidUpdate()
+    }
+  } else if (comp.componentDidMount) {
+    // 如果原先没有组件，则调用didMount
+    comp.componentDidMount()
+  }
+
+  if (comp.base && comp.base.parentNode) {
+    comp.base.parentNode.replaceChild(base, comp.base)
+  }
+
   comp.base = base
 }
 
 function setComponentProps(comp, props) {
+  // 当组件未加载时，也就是未render时，可以执行下面的生命周期方法
+  if (!comp.base) {
+    if (comp.componentWillMount) {
+      comp.componentWillMount()
+    } else if (comp.componentWillReceiveProps) {
+      comp.componentWillReceiveProps()
+    }
+  }
+  // 设置组件属性
   comp.props = props
+  // 渲染组件
   renderComponent(comp)
 }
 
@@ -42,8 +70,8 @@ function _render(vnode) {
     vnode = ''
   }
 
-  // 如果只是字符串
-  if (typeof vnode === 'string') {
+  // 如果只是字符串或者数字
+  if (typeof vnode === 'string' || typeof vnode === 'number') {
     // 创建文本节点
     const textNode = document.createTextNode(vnode)
     return textNode
