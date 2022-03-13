@@ -55,7 +55,7 @@ class Home extends React.Component {
     console.log(this.state.num)
     return (
       <div className={'hello'} title="react" style="color:red;font-size:32px">
-      
+
         {this.state.num}
         <button onClick={this.handleClick.bind(this)}>click</button>
       </div>
@@ -64,4 +64,4 @@ class Home extends React.Component {
 }
 
 
-ReactDOM.render(<Home name="title" />, document.querySelector('#root'))
+ReactDOM.render(<Home />, document.querySelector('#root'))

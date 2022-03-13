@@ -1,14 +1,16 @@
 import Component from '../react/component'
+import { diff, diffNode } from './diff'
 
 const ReactDOM = {
   render
 }
 
-function render(vnode, container) {
+function render(vnode, container, dom) {
+  return diff(dom, vnode, container)
   return container.appendChild(_render(vnode))
 }
 
-function createComponent(comp, props) {
+export function createComponent(comp, props) {
   let inst = null
   // 如果是类定义的组件，则创建实例返回
   if (comp.prototype && comp.prototype.render) {
@@ -27,12 +29,13 @@ function createComponent(comp, props) {
 export function renderComponent(comp) {
   let base = null
   const renderer = comp.render()
-  base = _render(renderer)
+  // base = _render(renderer)
+  base = diffNode(comp.base, renderer)
   if (comp.base && comp.componentWillUpdate) {
     comp.componentWillUpdate()
   }
 
-  if (comp.base) {
+  if (comp.base && comp.componentDidUpdate) {
     // 如果已经有组件，则调用update
     if (comp.componentDidUpdate) {
       comp.componentDidUpdate()
@@ -42,14 +45,14 @@ export function renderComponent(comp) {
     comp.componentDidMount()
   }
 
-  if (comp.base && comp.base.parentNode) {
-    comp.base.parentNode.replaceChild(base, comp.base)
-  }
+  // if (comp.base && comp.base.parentNode) {
+  //   comp.base.parentNode.replaceChild(base, comp.base)
+  // }
 
   comp.base = base
 }
 
-function setComponentProps(comp, props) {
+export function setComponentProps(comp, props) {
   // 当组件未加载时，也就是未render时，可以执行下面的生命周期方法
   if (!comp.base) {
     if (comp.componentWillMount) {
@@ -107,7 +110,7 @@ function _render(vnode) {
   return dom
 }
 
-function setAttribute(dom, key, value) {
+export function setAttribute(dom, key, value) {
   // 属性名className转换为class
   if (key === 'className') {
     key = 'class'
