@@ -12,11 +12,11 @@ function perforUnitOfwork(fiber) {
     // parent child sibling
     const elements = fiber?.props?.children
     let prevSibling = null
-    console.log(fiber)
+
     elements?.forEach((childrenElement, index) => {
         const newFiber = {
             parent: fiber,
-            props: childrenElement,
+            props: childrenElement.props,
             type: childrenElement.type,
             dom: null
         }
@@ -54,6 +54,7 @@ function workLoop(deadline) {
 requestIdleCallback(workLoop)
 
 function createDOM(element) {
+    console.log(element)
     const dom =
         element.type === 'TEXT_ELEMENT'
             ? document.createTextNode('')
