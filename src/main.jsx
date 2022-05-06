@@ -1,4 +1,4 @@
-import MyReact from './MyReact'
+import MyReact from './_MyReact'
 
 const element = MyReact.createElement(
   'div',
