@@ -5,20 +5,24 @@ import MyReact from './MyReact'
 /** @jsx MyReact.createElement */
 const container = document.querySelector('#root')
 
-const updateValue = (e) => {
-  renderer(e.target.value)
-}
 
-const renderer = value => {
+function App() {
+  const [number, setNumber] = MyReact.useState(0)
+  const [visible, setVisible] = MyReact.useState(true)
 
-  const element = (
+  return (
     <div>
-      <input onInput={updateValue} value={value} />
-      <h2>看我输入文字{value}</h2>
+      <button onClick={() => {
+        setNumber(number + 1)
+        setVisible(!visible)
+      }}>点我啊！</button>
+      <h1>{number}</h1>
+      {
+        visible ? <h2>你看到我了</h2> : null
+      }
     </div>
   )
 
-  MyReact.render(element, container)
 }
 
-renderer('嘿嘿')
+MyReact.render(<App />, container)
