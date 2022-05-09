@@ -1,18 +1,24 @@
-import MyReact from './_MyReact'
+/** @jsxRuntime classic */
+import MyReact from './MyReact'
 
-const element = MyReact.createElement(
-  'div',
-  {
-    title: 'hello',
-    id: 'sky'
-  },
-  'world',
-  MyReact.createElement('a', null, '我是a标签')
-)
 
+/** @jsx MyReact.createElement */
 const container = document.querySelector('#root')
 
-MyReact.render(
-  element,
-  container
-)
+const updateValue = (e) => {
+  renderer(e.target.value)
+}
+
+const renderer = value => {
+
+  const element = (
+    <div>
+      <input onInput={updateValue} value={value} />
+      <h2>看我输入文字{value}</h2>
+    </div>
+  )
+
+  MyReact.render(element, container)
+}
+
+renderer('嘿嘿')
