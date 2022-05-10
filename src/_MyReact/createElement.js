@@ -3,19 +3,18 @@ function createElement(type, props, ...children) {
         type,
         props: {
             ...props,
-            children: children.map((child) => (
+            children: children?.map((child) => (
                 typeof child === 'object'
                     ? child
-                    : createTextNode(child)
+                    : createTextElement(child)
             ))
         }
     }
-
 }
 
-function createTextNode(text) {
+function createTextElement(text) {
     return {
-        type:'TEXT_ELEMENT',
+        type: 'TEXT_ELEMENT',
         props: {
             nodeValue: text,
             children: []

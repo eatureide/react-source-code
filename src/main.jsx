@@ -1,28 +1,33 @@
 /** @jsxRuntime classic */
-import MyReact from './MyReact'
+import React from './_MyReact'
 
+/** @jsx React.createElement */
+// const element = {
+//   type: 'h1',
+//   props: {
+//     title: 'foo',
+//     children: 'Hello',
+//   },
+// }
 
-/** @jsx MyReact.createElement */
-const container = document.querySelector('#root')
+const element = (
+  <div id="foo">
+    <h2>h2</h2>
+    <b />
+  </div>
+)
 
+// const element = (
+//   <div>
+//     <h1>
+//       <p />
+//       <a />
+//     </h1>
+//     <h2 />
+//   </div>
+// )
 
-function App() {
-  const [number, setNumber] = MyReact.useState(0)
-  const [visible, setVisible] = MyReact.useState(true)
+// console.log(element)
 
-  return (
-    <div>
-      <button onClick={() => {
-        setNumber(number + 1)
-        setVisible(!visible)
-      }}>点我啊！</button>
-      <h1>{number}</h1>
-      {
-        visible ? <h2>你看到我了</h2> : null
-      }
-    </div>
-  )
-
-}
-
-MyReact.render(<App />, container)
+const container = document.getElementById('root')
+React.render(element, container)
