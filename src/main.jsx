@@ -1,7 +1,7 @@
 /** @jsxRuntime classic */
 import React from './_MyReact'
-
 /** @jsx React.createElement */
+
 // const element = {
 //   type: 'h1',
 //   props: {
@@ -10,10 +10,24 @@ import React from './_MyReact'
 //   },
 // }
 
+// const element = (
+//   <div id="foo">
+//     <h2>h2</h2>
+//     <b />
+//   </div>
+// )
+
 const element = (
-  <div id="foo">
-    <h2>h2</h2>
-    <b />
+  <div>
+    {/* <h1>
+      <p />
+      <a />
+      <span />
+    </h1>
+    <h2 /> */}
+    <p />
+    <a />
+    <span />
   </div>
 )
 
