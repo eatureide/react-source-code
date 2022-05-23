@@ -1,71 +1,27 @@
 /** @jsxRuntime classic */
-import React from './_MyReact'
+import React, { useState } from './lib/react'
+import ReactDOM from './lib/ReactDOM'
 /** @jsx React.createElement */
 
-// const element = {
-//   type: 'h1',
-//   props: {
-//     title: 'foo',
-//     children: 'Hello',
-//   },
-// }
-
-// const element = (
-//   <div id="foo">
-//     <h2>h2</h2>
-//     <b />
-//   </div>
-// )
-
-// const element = (
-//   <div>
-//     <a />
-//     <span />
-//     <b />
-//   </div>
-// )
-
-// const updateValue = e => {
-//   rerender(e.target.value)
-// }
-const container = document.getElementById('root')
-// const rerender = value => {
-//   const element = (
-//     <div>
-//       <input onInput={updateValue} value={value} />
-//       <h2>Hello {value}</h2>
-//     </div>
-//   )
-//   React.render(element, container)
-// }
-// rerender("World")
-
-// function App(props) {
-//   return <h1>Hi {props.name}</h1>
-// }
-// const element = <App name="foo" />
-
-function Counter() {
-  const [state, setState] = React.useState(1)
+const App = () => {
+  const [name, setName] = useState('zhangsan')
+  const [count, setCount] = useState(0)
   return (
-    <h1 onClick={() => setState(c => c + 1)}>
-      Count: {state}
-    </h1>
+    <div id={'react-from-scratch'} className={'shuffle'}>
+      <h1 className={'hello'}>{name}</h1>
+      <input type="text" value={name} onchange={(e) => setName(e.target.value)} />
+      <h1>count:{count}</h1>
+      <button onclick={() => setCount(count + 1)}>+</button>
+      <button onclick={() => setCount(count - 1)}>-</button>
+    </div>
   )
 }
-const element = <Counter />
 
+export const render = () => {
+  const container = document.getElementById('root')
+  document.getElementById('root').firstChild?.remove()
+  const root = ReactDOM.createRoot(container)
+  root.render(<App />)
+}
 
-// const element = (
-//   <div>
-//     <h1>
-//       <p />
-//       <a />
-//     </h1>
-//     <h2 />
-//   </div>
-// )
-
-
-// const container = document.getElementById('root')
-React.render(element, container)
+render()
