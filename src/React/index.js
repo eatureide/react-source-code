@@ -20,11 +20,28 @@ function createTextVDom(text) {
     }
 }
 
+function commitWork(fiber) {
+    if (!fiber) return
+    const domParent = fiber.return.dom
+    domParent.appendChild(fiber.dom)
+    commitWork(fiber.child)
+    commitWork(fiber.sibling)
+}
+
+function commitRoot() {
+    commitWork(wipRoot.child)
+    wipRoot = null
+}
+
 let nextUnifOfWork = null
+let wipRoot = null
 function wrokLoop(deadline) {
     // 下一个任务是存在的，并且任务执行期限还没结束
     while (nextUnifOfWork && deadline.timeRemaining() > 1) {
         nextUnifOfWork = performUnitOfWork(nextUnifOfWork)
+    }
+    if (!nextUnifOfWork && wipRoot) {
+        commitRoot()
     }
     // 任务还没有完成，但是时间到了，我们就需要注册，下一个空闲时间运行任务
     requestIdleCallback(wrokLoop)
@@ -37,11 +54,6 @@ function performUnitOfWork(fiber) {
     // 根节点是container，是有dom属性的，如果当前fiber没有这个属性，说明当前fiber不是根节点
     if (!fiber.dom) {
         fiber.dom = creatDom(fiber) // 创建dom挂载上去
-    }
-
-    // 如果有父节点（也就是fiber节点已经准备好），将当前节点挂载到父节点上
-    if (fiber.return) {
-        fiber.return.dom.appendChild(fiber.dom)
     }
 
     // 将vdom转为fiber结构
@@ -118,12 +130,13 @@ function creatDom(vDOM) {
 }
 
 function render(vDOM, container) {
-    nextUnifOfWork = {
+    wipRoot = {
         dom: container,
         props: {
             children: [vDOM]
         }
     }
+    nextUnifOfWork = wipRoot
 }
 
 export default { createElement, render }
