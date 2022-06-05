@@ -1,71 +1,134 @@
 /** @jsxRuntime classic */
-import React from './_MyReact'
-/** @jsx React.createElement */
+/** @jsx createElement */
+let nextUnitOfWork = null
+let wipRoot = null
 
-// const element = {
-//   type: 'h1',
-//   props: {
-//     title: 'foo',
-//     children: 'Hello',
-//   },
-// }
-
-// const element = (
-//   <div id="foo">
-//     <h2>h2</h2>
-//     <b />
-//   </div>
-// )
-
-// const element = (
-//   <div>
-//     <a />
-//     <span />
-//     <b />
-//   </div>
-// )
-
-// const updateValue = e => {
-//   rerender(e.target.value)
-// }
-const container = document.getElementById('root')
-// const rerender = value => {
-//   const element = (
-//     <div>
-//       <input onInput={updateValue} value={value} />
-//       <h2>Hello {value}</h2>
-//     </div>
-//   )
-//   React.render(element, container)
-// }
-// rerender("World")
-
-// function App(props) {
-//   return <h1>Hi {props.name}</h1>
-// }
-// const element = <App name="foo" />
-
-function Counter() {
-  const [state, setState] = React.useState(1)
-  return (
-    <h1 onClick={() => setState(c => c + 1)}>
-      Count: {state}
-    </h1>
-  )
+function createElement(type, props, ...children) {
+    return {
+        type,
+        props: {
+            ...props,
+            children: children.map((child) => (
+                typeof child === 'object'
+                    ? child
+                    : createTextElement(child)
+            ))
+        }
+    }
 }
-const element = <Counter />
+
+function createTextElement(child) {
+    return {
+        type: 'TEXT_ELEMENT',
+        props: {
+            nodeValue: child,
+            children: []
+        }
+    }
+}
+
+function createDOM(fiber) {
+    const dom = fiber.type === 'TEXT_ELEMENT'
+        ? document.createTextNode('')
+        : document.createElement(fiber.type)
+
+    const isProperty = (key) => key !== 'children'
+    Reflect.ownKeys(fiber.props)
+        .filter(isProperty)
+        .forEach((key) => {
+            dom[key] = fiber.props[key]
+        })
+
+    return dom
+}
+function render(element, container) {
+    wipRoot = {
+        dom: container,
+        props: {
+            children: [element],
+        }
+    }
+
+    nextUnitOfWork = wipRoot
+}
 
 
-// const element = (
-//   <div>
-//     <h1>
-//       <p />
-//       <a />
-//     </h1>
-//     <h2 />
-//   </div>
-// )
+function commitRoot() {
+    commitWork(wipRoot.child)
+    wipRoot = null
+}
+
+function commitWork(fiber) {
+    if (!fiber) return
+    const domParent = fiber.parent.dom
+    domParent.appendChild(fiber.dom)
+    commitWork(fiber.child)
+    commitWork(fiber.sibling)
+}
+
+function wrokLoop(deadLine) {
+    let isYiled = true
+    if (isYiled && nextUnitOfWork) {
+        nextUnitOfWork = performnNextUnitOfWork(nextUnitOfWork)
+        isYiled = deadLine.timeRemaining() >= 1
+    }
+
+    if (!nextUnitOfWork && wipRoot) {
+        commitRoot()
+    }
+    requestIdleCallback(wrokLoop)
+}
+requestIdleCallback(wrokLoop)
+
+function performnNextUnitOfWork(fiber) {
+
+    if (!fiber.dom) {
+        fiber.dom = createDOM(fiber)
+    }
+
+    // if (fiber.parent) {
+    //     fiber.parent.dom.appendChild(fiber.dom)
+    // }
+
+    let prevSibling = null
+
+    fiber.props.children.forEach((element, index) => {
+        const newFiber = {
+            type: element.type,
+            parent: fiber,
+            dom: null,
+            props: element.props,
+            children: element.props.children,
+            child: null
+        }
+        if (index === 0) {
+            fiber.child = newFiber
+        } else {
+            prevSibling.sibling = newFiber
+        }
+        prevSibling = newFiber
+    })
+
+    if (fiber.child) {
+        return fiber.child
+    }
+
+    let nextFiber = fiber
+    while (nextFiber) {
+        if (nextFiber.sibling) {
+            return nextFiber.sibling
+        }
+        nextFiber = nextFiber.parent
+    }
+}
 
 
-// const container = document.getElementById('root')
-React.render(element, container)
+
+const element = (
+    <div id="element">
+        <p>element</p>
+        <span>span</span>
+    </div>
+)
+const node = document.getElementById('root')
+render(element, node)
