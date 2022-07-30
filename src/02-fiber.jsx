@@ -1,16 +1,18 @@
 /** @jsxRuntime classic */
 /** @jsx createElement */
 
+let nextUnitOfWork = null
+
 function createElement(type, props, ...children) {
     return {
         type,
         props: {
             ...props,
-            children: children.map((child) =>
+            children: children.map((child) => (
                 typeof child === 'object'
-                    ? child
-                    : createTextElement(child)
-            )
+                    ? child :
+                    createTextElement(child)
+            ))
         }
     }
 }
@@ -25,12 +27,11 @@ function createTextElement(child) {
     }
 }
 
-let nextUnitOfWork = null
 function workLoop(deadline) {
-    let shouldYiled = true
-    while (nextUnitOfWork && shouldYiled) {
-        shouldYiled = deadline.timeRemaining() >= 1
+    let shouldYield = true
+    while (nextUnitOfWork && shouldYield) {
         nextUnitOfWork = performUnitOfWork(nextUnitOfWork)
+        shouldYield = deadline.timeRemaining() < 1
     }
     requestIdleCallback(workLoop)
 }
@@ -38,9 +39,8 @@ function workLoop(deadline) {
 requestIdleCallback(workLoop)
 
 function performUnitOfWork(fiber) {
-
     if (!fiber.dom) {
-        fiber.dom = renderDOM(fiber)
+        fiber.dom = renderDom(fiber)
     }
 
     if (fiber.parent) {
@@ -52,12 +52,13 @@ function performUnitOfWork(fiber) {
     let elements = fiber.props.children
 
     while (index < elements.length) {
-        let element = elements[index]
-        let newFiber = {
-            child: null,
+        const element = elements[index]
+
+        const newFiber = {
             type: element.type,
             props: element.props,
-            parent: fiber
+            parent: fiber,
+            dom: null
         }
 
         if (index === 0) {
@@ -65,8 +66,10 @@ function performUnitOfWork(fiber) {
         } else {
             prevSibling.sibling = newFiber
         }
+
         prevSibling = newFiber
         index++
+
     }
 
     if (fiber.child) {
@@ -82,21 +85,10 @@ function performUnitOfWork(fiber) {
     }
 }
 
-function render(element, container) {
-    nextUnitOfWork = {
-        dom: container,
-        props: {
-            children: [element]
-        }
-    }
-}
-
-function renderDOM(fiber) {
-
+function renderDom(fiber) {
     const dom = fiber.type === 'TEXT_ELEMENT'
         ? document.createTextNode('')
         : document.createElement(fiber.type)
-
     const isProperty = (key) => key !== 'children'
 
     Reflect.ownKeys(fiber.props).filter(isProperty).forEach((key) => {
@@ -107,12 +99,21 @@ function renderDOM(fiber) {
     return dom
 }
 
-const dom = (
+function render(element, container) {
+    nextUnitOfWork = {
+        dom: container,
+        props: {
+            children: [element]
+        }
+    }
+}
+
+const root = document.getElementById('root')
+const node = (
     <div title="jojo">
-        <p title="made in heaven">jo1</p>
-        <span>jo2</span>
+        <p>made in heaven</p>
+        <p>gold wind</p>
     </div>
 )
 
-const root = document.getElementById('root')
-render(dom, root)
+render(node, root)
